@@ -2,16 +2,16 @@ const router = require("express").Router();
 const { User, Comment, Post } = require("../models");
 const withAuth = require("../utils/auth");
 
-async function getUsernames(posts) {
-  await posts.forEach(async (p) => {
-    const user = await User.findOne({
-      where: {
-        id: p.user_id,
-      },
-    });
-    p.username = user.dataValues.username;
-  });
-}
+// async function getUsernames(posts) {
+//   await posts.forEach(async (p) => {
+//     const user = await User.findOne({
+//       where: {
+//         id: p.user_id,
+//       },
+//     });
+//     p.username = user.dataValues.username;
+//   });
+// }
 
 router.get("/", async (req, res) => {
   try {
@@ -20,7 +20,7 @@ router.get("/", async (req, res) => {
     });
     const posts = postData.map((r) => r.get({ plain: true }));
 
-    await getUsernames(posts);
+    // await getUsernames(posts);
 
     res.render("posts", { posts, loggedIn: req.session.loggedIn });
     // res.status(200).json(posts);
@@ -59,10 +59,17 @@ router.get("/newpost", withAuth, async (req, res) => {
 
 router.post("/newpost", async (req, res) => {
   try {
+    const user = await User.findOne({
+      where: {
+        id: req.session.user,
+      },
+    });
+
     const newPostData = await Post.create({
       title: req.body.title,
       body: req.body.body,
       user_id: req.session.user,
+      username: user.dataValues.username,
     });
 
     res.status(200).json(newPostData);
