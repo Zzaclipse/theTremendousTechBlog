@@ -15,10 +15,18 @@ Comment.init(
       type: DataTypes.TEXT,
       allowNull: false,
     },
+    postdate: {
+      type: DataTypes.DATEONLY,
+      defaultValue: DataTypes.NOW,
+      allowNull: false,
+    },
+    username: {
+      type: DataTypes.STRING,
+    },
     post_id: {
       type: DataTypes.INTEGER,
       references: {
-        model: "cookbook",
+        model: "post",
         key: "id",
       },
     },

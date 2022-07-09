@@ -1,57 +1,88 @@
-<head>
-    <meta charset="UTF-8">
-    <title>Family Cookbook</title>
-    <link rel="stylesheet" type="text/css" href="/css/style2.css">
-    {{!-- <link rel="stylesheet" href="/public/css/style2.css"> --}}
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Tech Blog</title>
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Alata&family=Lexend+Deca:wght@100;200&family=Sacramento&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+      integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+      crossorigin="anonymous"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Alata&family=Lexend+Deca:wght@100;200&family=Sacramento&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
+    />
+    <link rel="stylesheet" type="text/css" href="/css/style.css" />
+
   </head>
+  <body>
+    <header>
 
-    {{!-- <div class="row"> --}}
-      <header class="col-12">
-
-        <div id="title"><span id="main-title">
-          Family Cookbook 
-          <i class="fa-solid fa-kitchen-set"></i>
+      <div id="title"><span id="main-title">
+          Tech Blog
         </span>
+      </div>
 
-        <span class="user-access">
-            <a href="#sign-up">sign up</a> | <a href="login">login</a>
-            </span>
-            </div>
-            
-            </header>
+    </header>
+    <div class="row">
+      <div class="col-4"></div>
+      <nav
+        class="navbar navbar-expand-lg justify-content-center bg-light col-4 mb-4"
+      >
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="/">Home</a>
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link active"
+              aria-current="page"
+              href="/dashboard"
+            >Dashboard</a>
+          </li>
 
-        <div class="navbar" id="myTopnav">
-            <a href="#home">home</a> 
-            <a href="#breakfast">breakfast</a> 
-            <a href="#mains">mains</a> 
-            <a href="#sides">sides</a>
-            <a href="#desserts">desserts</a>
-            <a href="javascript:void(0);" class="icon" onclick="myFunction()">
-
-  </a>
-</div>
-  <main>
-    <body>
-    {{!-- <aside>
-      <h2>Welcome!</h2>
-    </aside> --}}
-    <div class="search-page">
-      {{{body}}}
+          {{#if loggedIn}}
+            <li class="nav-item">
+              <a
+                id="logout"
+                class="nav-link active"
+                aria-current="page"
+                href="#"
+              >Log Out</a>
+            </li>
+          {{else}}
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="/login">Log
+                In</a>
+            </li>
+          {{/if}}
+        </ul>
+      </nav>
+      <div class="col-4"></div>
     </div>
-  </main>
-  {{#if loggedIn}}
-  <script src="/js/logout.js"></script>
-  {{/if}}
-</body>
+    <main>
+      <div class="row">
+        <div class="col-4"></div>
+        <div class="col-4">{{{body}}}</div>
+        <div class="col-4"></div>
+      </div>
 
+    </main>
+    {{#if loggedIn}}
+      <script src="/js/logout.js"></script>
+    {{/if}}
 
-     
-  
-  </html>
+  </body>
+
+</html>

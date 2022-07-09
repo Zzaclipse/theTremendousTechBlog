@@ -12,7 +12,16 @@ Post.init(
       autoIncrement: true,
     },
     title: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    body: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    postdate: {
+      type: DataTypes.DATEONLY,
+      defaultValue: DataTypes.NOW,
       allowNull: false,
     },
     user_id: {
@@ -21,6 +30,9 @@ Post.init(
         model: "user",
         key: "id",
       },
+    },
+    username: {
+      type: DataTypes.STRING,
     },
   },
   {

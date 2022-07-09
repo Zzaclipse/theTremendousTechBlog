@@ -1,85 +1,73 @@
 const router = require("express").Router();
-const {
-  User,
-  Cookbook,
-  Recipe,
-  Comment,
-  UserCookbook,
-  Category,
-} = require("../models");
-// Import the custom middleware
+const { User, Comment, Post } = require("../models");
 const withAuth = require("../utils/auth");
 
-router.get("/cookbooks", async (req, res) => {
-  try {
-    const cbData = await Cookbook.findAll({
-      // include: [{ model: Category }, { model: Comment }],
+async function getUsernames(posts) {
+  await posts.forEach(async (p) => {
+    const user = await User.findOne({
+      where: {
+        id: p.user_id,
+      },
     });
-    console.log("cbdata ", cbData);
-    const books = cbData.map((r) => r.get({ plain: true }));
-    console.log(books);
-    res.render("homepage-cb", { books });
-  } catch (err) {
-    console.log(err);
-    res.status(500).json(err);
-  }
-});
+    p.username = user.dataValues.username;
+  });
+}
 
 router.get("/", async (req, res) => {
   try {
-    res.render("homepage");
-  } catch (err) {
-    console.log(err);
-    res.status(500).json(err);
-  }
-});
-
-router.get("/recipes", async (req, res) => {
-  try {
-    const recipeData = await Recipe.findAll({
-      // include: [{ model: Category }, { model: Comment }],
+    const postData = await Post.findAll({
+      include: [{ model: Comment }],
     });
+    const posts = postData.map((r) => r.get({ plain: true }));
 
-    const recipes = recipeData.map((r) => r.get({ plain: true }));
-    console.log(recipes);
-    res.render("recipes", { recipes });
+    await getUsernames(posts);
+
+    res.render("posts", { posts, loggedIn: req.session.loggedIn });
+    // res.status(200).json(posts);
   } catch (err) {
     console.log(err);
     res.status(500).json(err);
   }
 });
 
-// get recipe by category
-router.get("/categories/:id", async (req, res) => {
+router.get("/dashboard", withAuth, async (req, res) => {
   try {
-    const recipeData = await Recipe.findAll({
+    const postData = await Post.findAll({
+      include: [{ model: Comment }],
       where: {
-        category_id: req.params.id,
+        user_id: req.session.user,
       },
     });
-    if (!recipeData) {
-      res.status(404).json({ message: "No category found with that id!" });
-      return;
-    }
-
-    res.status(200).json(recipeData);
+    const posts = postData.map((r) => r.get({ plain: true }));
+    res.render("dashboard", { posts, loggedIn: req.session.loggedIn });
+    // res.status(200).json(posts);
   } catch (err) {
+    console.log(err);
     res.status(500).json(err);
   }
 });
 
-// get recipe by id
-router.get("/recipes/:id", async (req, res) => {
+router.get("/newpost", withAuth, async (req, res) => {
   try {
-    const recipeData = await Recipe.findByPk(req.params.id, {});
-    if (!recipeData) {
-      res.status(404).json({ message: "No recipe found with that id!" });
-      return;
-    }
-    const recipe = recipeData.get({ plain: true });
-    console.log(recipe);
-    res.render("singlerecipe", { recipe });
+    res.render("newpost", { loggedIn: req.session.loggedIn });
+    // res.status(200).json(posts);
   } catch (err) {
+    console.log(err);
+    res.status(500).json(err);
+  }
+});
+
+router.post("/newpost", async (req, res) => {
+  try {
+    const newPostData = await Post.create({
+      title: req.body.title,
+      body: req.body.body,
+      user_id: req.session.user,
+    });
+
+    res.status(200).json(newPostData);
+  } catch (err) {
+    console.log(err);
     res.status(500).json(err);
   }
 });
@@ -91,6 +79,119 @@ router.get("/login", (req, res) => {
   }
 
   res.render("login");
+});
+
+router.post("/login", async (req, res) => {
+  try {
+    const dbUserData = await User.findOne({
+      where: {
+        email: req.body.email,
+      },
+    });
+    if (!dbUserData) {
+      res
+        .status(400)
+        .json({ message: "Incorrect email or password. Please try again!" });
+      return;
+    }
+
+    const validPassword = await dbUserData.checkPassword(req.body.password);
+
+    if (!validPassword) {
+      res
+        .status(400)
+        .json({ message: "Incorrect email or password. Please try again!" });
+      return;
+    }
+    req.session.save(() => {
+      req.session.loggedIn = true;
+      req.session.user = dbUserData.dataValues.id;
+
+      res
+        .status(200)
+        .json({ user: dbUserData, message: "You are now logged in!" });
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json(err);
+  }
+});
+
+router.post("/logout", (req, res) => {
+  if (req.session.loggedIn) {
+    req.session.destroy(() => {
+      res.status(204).end();
+    });
+  } else {
+    res.status(404).end();
+  }
+});
+
+router.post("/users", async (req, res) => {
+  try {
+    const dbUserData = await User.create({
+      username: req.body.username,
+      email: req.body.email,
+      password: req.body.password,
+    });
+
+    req.session.save(() => {
+      req.session.loggedIn = true;
+      req.session.user = dbUserData.dataValues.id;
+
+      res.status(200).json(dbUserData);
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json(err);
+  }
+});
+
+router.get("/:id", async (req, res) => {
+  try {
+    const postData = await Post.findOne({
+      include: [{ model: Comment }],
+      where: {
+        id: req.params.id,
+      },
+    });
+
+    const user = await User.findOne({
+      where: {
+        id: postData.user_id,
+      },
+    });
+    postData.username = user.dataValues.username;
+    res.render("singlepost", { postData, loggedIn: req.session.loggedIn });
+    // res.status(200).json(posts);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json(err);
+  }
+});
+
+router.post("/:id", async (req, res) => {
+  try {
+    const url = req.url.split("")[1];
+
+    const user = await User.findOne({
+      where: {
+        id: req.session.user,
+      },
+    });
+
+    const newCommentData = await Comment.create({
+      text: req.body.text,
+      post_id: url,
+      user_id: req.session.user,
+      username: user.dataValues.username,
+    });
+
+    res.status(200).json(newCommentData);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json(err);
+  }
 });
 
 module.exports = router;

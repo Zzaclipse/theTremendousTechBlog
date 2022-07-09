@@ -1,0 +1,20 @@
+<section class="card text-center mt-3 mb-3">
+  <header class="font-weight-bold" id="get-post-num" postnum="{{postData.dataValues.id}}"><div class="float-left">{{postData.dataValues.title}}</div><div
+      class="float-right"
+      style="font-size: 10px"
+    >posted on:
+      {{postData.dataValues.postdate}}
+      by
+      {{postData.dataValues.username}}</div></header>
+  <div>{{postData.dataValues.body}}</div>
+</section>
+<h2 class="text-center">Comments</h2>
+{{#each postData.comments}}
+  {{> comments}}
+{{/each}}
+<div id="input-comment-box" class="text-center"></div>
+<div class="text-center">
+<button id="new-comment-button">+ New Comment</button>
+</div>
+
+<script src="./js/comment.js"></script>
