@@ -147,7 +147,7 @@ router.post("/users", async (req, res) => {
   }
 });
 
-router.get("/:id", async (req, res) => {
+router.get("/:id", withAuth, async (req, res) => {
   try {
     const postData = await Post.findOne({
       include: [{ model: Comment }],
