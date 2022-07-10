@@ -30,6 +30,21 @@ router.get("/", async (req, res) => {
   }
 });
 
+router.delete("/delete", async (req, res) => {
+  try {
+    const postData = await Post.destroy({
+      where: {
+        id: req.body.id,
+      },
+    });
+
+    res.status(200).json(postData);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json(err);
+  }
+});
+
 router.get("/dashboard", withAuth, async (req, res) => {
   try {
     const postData = await Post.findAll({
